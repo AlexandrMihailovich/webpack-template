@@ -3,6 +3,7 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const webpack = require('webpack');
 
 module.exports = {
     entry: ['./src/app.js'],
@@ -13,6 +14,7 @@ module.exports = {
     devServer: {
         inline:true
     },
+    devtool: "source-map",
     optimization: {
         minimizer: [
             new OptimizeCssAssetsPlugin({}),
@@ -27,11 +29,29 @@ module.exports = {
                 test: /\.(scss|css)$/,
                 use: ExtractTextPlugin.extract({
                     fallback: 'style-loader',
-                    use: ['css-loader', 'sass-loader'],
+                    use: [{
+                        loader: "css-loader", options: {
+                            sourceMap: true
+                        }
+                    }, {
+                        loader: "sass-loader", options: {
+                            sourceMap: true
+                        }
+                    },{
+                        loader: 'postcss-loader',
+                        options: {
+                          //ident: 'postcss',
+                          sourceMap: true,
+                          plugins: [
+                            require('autoprefixer'),
+                          ]
+                        }
+                    }
+                ],
                 })
             },
             {
-                test: /\.(woff|woff2|eot|ttf)$/,
+                test: /\.(woff|woff2|eot|ttf|svg)$/,
                 use: [{
                     loader: 'file-loader',
                     options: {
@@ -42,7 +62,11 @@ module.exports = {
                 }]
             },
             {
-                test: /\.(jpe?g|gif|png|svg)$/,
+                test: /\.(html|htm)$/,
+                use: ['html-loader']
+            },
+            {
+                test: /\.(jpe?g|gif|png)$/,
                 use: [{
                     loader: 'file-loader',
                     options: {
@@ -55,6 +79,10 @@ module.exports = {
         ]
     },
     plugins: [
+        new webpack.ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery'
+          }),
         new ExtractTextPlugin('style.css'),
         new OptimizeCssAssetsPlugin({
             assetNameRegExp: /\.optimize\.css$/g,
