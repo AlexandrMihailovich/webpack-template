@@ -5,6 +5,7 @@ const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const webpack = require('webpack');
 
+
 module.exports = {
     entry: ['./src/app.js'],
     output: {
@@ -74,13 +75,39 @@ module.exports = {
                         outputPath: 'img/',
                         publicPath: url => `img/${url}`
                     }
-                }]
+                },{
+                    loader: 'image-webpack-loader',
+                    options: {
+                      mozjpeg: {
+                        progressive: true,
+                        quality: 65
+                      },
+                      // optipng.enabled: false will disable optipng
+                      optipng: {
+                        enabled: false,
+                      },
+                      pngquant: {
+                        quality: '40-50',
+                        speed: 4
+                      },
+                      gifsicle: {
+                        interlaced: false,
+                      }//,
+                      // the webp option will enable WEBP
+                      //webp: {
+                        //enabled: false
+                        //quality: 75
+                      //s}
+                    }
+                  },
+            ]
             }
         ]
     },
     plugins: [
         new webpack.ProvidePlugin({
             $: 'jquery',
+            'window.jQuery': 'jquery',
             jQuery: 'jquery'
           }),
         new ExtractTextPlugin('style.css'),
@@ -99,5 +126,6 @@ module.exports = {
             template: './src/index.html',
             filename: 'index.html'
         })
+        
     ]
 };
